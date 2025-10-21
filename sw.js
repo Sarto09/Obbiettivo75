@@ -1,23 +1,20 @@
-// Service Worker for Trasformazione 2025
-//
-// Caches static assets on first load to enable offline access and
-// implements a network-first strategy for navigation requests.  If
-// network is unavailable, it falls back to the cached index.html.
+// Service Worker per Trasformazione 2025 – versione estesa offline
+// Cache aggiornata con Chart.js e adapter per garantire grafico anche offline.
 
-const CACHE_NAME = 'tracker-cache-v2';
+const CACHE_NAME = 'tracker-cache-v4';
 
-// List of files to cache during the install phase.  If you add other
-// files (e.g. additional scripts, images) to the project, list them
-// here so they get cached on first load.
+// Elenco file da cachare durante l'installazione
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  'https://cdn.jsdelivr.net/npm/chart.js@4',
+  'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3'
 ];
 
-// Install event: cache static assets
+// Installazione: salva tutti i file base
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
@@ -25,35 +22,37 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Activate event: purge old caches
+// Attivazione: rimuove vecchie cache
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys.map(key => (key !== CACHE_NAME ? caches.delete(key) : Promise.resolve()))
-      )
+      Promise.all(keys.map(key => (key !== CACHE_NAME ? caches.delete(key) : Promise.resolve())))
     )
   );
   self.clients.claim();
 });
 
-// Fetch event: network-first for navigations, cache-first for static assets
+// Strategia di fetch
 self.addEventListener('fetch', event => {
   const { request } = event;
-  // For navigations (HTML pages), try network first
+
+  // Navigazioni (HTML) → network first
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() => caches.match('./index.html'))
     );
     return;
   }
-  // For other requests, try cache first, then network
+
+  // Altri file → cache first, poi network
   event.respondWith(
     caches.match(request).then(cached => {
       return (
         cached ||
         fetch(request).then(response => {
-          // Optionally cache new requests here (not done to avoid unexpected behaviour)
+          // Copia eventuali nuove versioni nella cache per uso futuro
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
           return response;
         })
       );
