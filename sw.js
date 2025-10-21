@@ -4,7 +4,7 @@
 // implements a network-first strategy for navigation requests.  If
 // network is unavailable, it falls back to the cached index.html.
 
-const CACHE_NAME = 'tracker-cache-v1';
+const CACHE_NAME = 'tracker-cache-v2';
 
 // List of files to cache during the install phase.  If you add other
 // files (e.g. additional scripts, images) to the project, list them
