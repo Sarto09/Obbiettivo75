@@ -9,10 +9,11 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <!-- Google Font per la citazione -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
 
-  <!-- Chart.js + adapter date-fns per l’asse temporale -->
+  <!-- Google Font per la citazione -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&display=swap" rel="stylesheet">
+
+  <!-- Chart.js + adapter date-fns per asse temporale -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 
@@ -30,16 +31,22 @@
       --quote-bg:#f0f1f4;
       --quote-border:#e3e6ea;
     }
+
+    /* Resetti e fix generali mobile/iOS */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
+    html,body{overflow-x:hidden} /* evita qualsiasi sporgenza orizzontale */
     body{
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      -webkit-tap-highlight-color: transparent;
       font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background:var(--bg-grad);
       color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
       padding:10px;
     }
+
+    /* Contenitori */
     .container{max-width:720px;margin:0 auto;padding:8px}
     .header{
       background:var(--card-bg);
@@ -51,29 +58,35 @@
     .header-top{
       display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px
     }
-    .app-title{
-      color:var(--brand-1);font-size:20px;font-weight:800;line-height:1.2
-    }
+    .app-title{color:var(--brand-1);font-size:20px;font-weight:800;line-height:1.2}
     .settings-btn{
       display:inline-flex;align-items:center;gap:8px;
       background:#eef0ff;border:1px solid #dfe3ff;color:#3c49b1;
       padding:8px 12px;border-radius:12px;font-weight:700;cursor:pointer
     }
+
+    /* Citazione – corsivo sobrio in “bassorilievo” */
     .motivation{
       margin:6px 0 10px;
       background:var(--quote-bg);
       border:1px solid var(--quote-border);
       border-radius:16px;
       padding:12px 14px;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.65),
+        0 1px 1px rgba(0,0,0,.04);
     }
     .motivation blockquote{
       font-family:"Playfair Display", serif;
-      font-style:italic;
-      font-size:17px;
-      line-height:1.4;
-      color:#444;
+      font-style:italic;         /* corsivo ma più sobrio */
+      font-weight:500;           /* meno marcato */
+      font-size:16.5px;          /* leggermente ridotto */
+      line-height:1.35;          /* più compatto e leggibile */
+      color:#555;                /* meno contrasto, più elegante */
+      letter-spacing:.1px;
     }
+
+    /* Statistiche */
     .target-info{
       display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
       margin-top:10px;padding-top:12px;border-top:1.5px solid #f0f0f0
@@ -81,31 +94,59 @@
     .stat{text-align:center}
     .stat-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px}
     .stat-value{font-size:18px;font-weight:800;color:var(--brand-1);margin-top:4px}
+
+    /* Progress bar */
     .progress-bar{width:100%;height:26px;background:#ececff;border-radius:14px;overflow:hidden;margin:12px 0 2px}
     .progress-fill{
       height:100%;
       background:linear-gradient(90deg, var(--brand-1) 0%, var(--brand-2) 100%);
       transition:width .4s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px
     }
-    .card{background:var(--card-bg);border-radius:var(--radius-xl);padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+
+    /* Card e form */
+    .card{background:var(--card-bg);border-radius:var(--radius-xl);padding:18px;margin:14px 0;box-shadow:var(--shadow); overflow:hidden}
     .card h2{color:var(--brand-1);font-size:18px;margin-bottom:14px}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .form-group{display:flex;flex-direction:column;gap:6px}
     label{font-weight:600;color:#4a4a4a;font-size:14px}
-    input[type="number"],input[type="date"]{
-      width:100%;padding:12px;border:2px solid #e6e6f7;border-radius:12px;font-size:16px;
-      transition:border-color .2s;background:#fafaff
+
+    /* Fix input iOS (niente sporgenze, no stili nativi troppo invadenti) */
+    input[type="number"], input[type="date"]{
+      width:100%;
+      min-width:0;                 /* evita overflow in grid su iOS */
+      display:block;
+      appearance:none;
+      -webkit-appearance:none;
+      padding:12px 12px;
+      border:2px solid #e6e6f7;
+      border-radius:12px;
+      font-size:16px;
+      line-height:1.2;
+      background:#fafaff;
+      transition:border-color .2s, background .2s;
     }
-    input[type="number"]:focus,input[type="date"]:focus{outline:none;border-color:var(--brand-1);background:#fff}
+    /* iOS mostra il testo centrato nel datepicker embedded */
+    input[type="date"]{ text-align:center }
+    /* Quando focus: bordo brand */
+    input[type="number"]:focus, input[type="date"]:focus{
+      outline:none;border-color:var(--brand-1);background:#fff
+    }
+
+    /* Upload foto */
     .photo-upload{
       border:2.5px dashed #e0e0f5;border-radius:12px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;background:#fafaff
     }
     .photo-upload:hover{border-color:var(--brand-1);background:#f4f6ff}
     .photo-upload input{display:none}
     .photo-preview{max-width:100%;max-height:320px;margin-top:10px;border-radius:12px}
+
+    /* Bottoni */
     .btn{
-      width:100%;padding:14px;background:linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 100%);
-      color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;transition:transform .15s;margin-top:4px
+      width:100%;
+      display:inline-block;
+      padding:14px;
+      background:linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 100%);
+      color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;transition:transform .15s;margin-top:6px
     }
     .btn:hover{transform:translateY(-1px)}
     .btn:active{transform:translateY(0)}
@@ -113,9 +154,12 @@
     .btn-danger{background:linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)}
     .backup-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .backup-buttons .btn{font-size:14px;padding:12px}
+
     .success-message{
       background:#2ecc71;color:#fff;padding:14px;border-radius:12px;margin-bottom:12px;text-align:center;font-weight:800;display:none
     }
+
+    /* Storico */
     .history{margin-top:10px}
     .history-item{
       display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:12px;
@@ -127,12 +171,15 @@
     .history-date{font-size:13px;color:#8b8b9a}
     .history-weight{font-size:18px;font-weight:800;color:var(--brand-1)}
     .delete-btn{background:#ff4757;color:#fff;border:none;padding:8px 12px;border-radius:10px;cursor:pointer;font-size:12px}
+
     .file-input-label{display:block;padding:10px 14px;background:var(--brand-1);color:#fff;border-radius:10px;cursor:pointer;font-size:14px;text-align:center;margin-top:10px}
     #restoreFile{display:none}
+
+    /* Modal foto */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;align-items:center;justify-content:center}
     .modal img{max-width:92%;max-height:92%;border-radius:12px}
 
-    /* Setup Modal */
+    /* Setup iniziale / Impostazioni */
     .setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1100}
     .setup-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px;width:min(560px,92vw)}
     .setup-title{font-size:18px;color:var(--brand-1);font-weight:800;margin-bottom:10px}
@@ -146,6 +193,7 @@
       .container{padding:6px}
       .form-grid{grid-template-columns:1fr}
       .setup-grid{grid-template-columns:1fr}
+      .history-item{grid-template-columns:56px 1fr auto}
     }
   </style>
 </head>
@@ -156,9 +204,7 @@
     <div class="header">
       <div class="header-top">
         <div class="app-title" id="appTitle">🎯 Obiettivo</div>
-        <button class="settings-btn" type="button" onclick="openSettings()">
-          ⚙️ Impostazioni
-        </button>
+        <button class="settings-btn" type="button" onclick="openSettings()">⚙️ Impostazioni</button>
       </div>
 
       <!-- Citazione motivazionale (cambia ogni giorno) -->
@@ -273,11 +319,11 @@
   </div>
 
   <script>
-    // ========== COSTANTI DB (non cambiare nome/versione per non perdere i dati) ==========
+    /* ====== COSTANTI DB (non cambiare nome/versione per non perdere i dati) ====== */
     const DB_NAME = 'WeightTrackerDB';
     const DB_VERSION = 1;
 
-    // ========== STATO ==========
+    /* ====== STATO ====== */
     let db = null;
     let entries = []; // [{date, weight, photo(base64)}]
     let settings = { startDate:null, endDate:null, startWeight:null, targetWeight:null };
@@ -285,7 +331,7 @@
     // Chart.js ref
     let chartRef = null;
 
-    // Citazioni (cambia quotidianamente, deterministico per data)
+    // Citazioni del giorno (deterministiche per data)
     const QUOTES = [
       "La costanza batte la motivazione.",
       "Un piccolo passo ogni giorno diventa una lunga strada.",
@@ -299,28 +345,24 @@
       "Avanza di un centimetro, ma avanza."
     ];
 
-    // Helper: ISO-only date (YYYY-MM-DD) per evitare problemi di timezone
+    /* ====== Helper date ====== */
     const todayISO = () => {
       const d = new Date();
       return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
     };
 
-    // Imposta data odierna nel form di inserimento
-    (function setDefaultDate(){
+    // Imposta data odierna nel form inserimento + default setup
+    (function setDefaultDates(){
       document.getElementById('date').value = todayISO();
-      // Setup defaults per la modale
       document.getElementById('setupStartDate').value = todayISO();
-      // default end date + 160 giorni circa
       const approxEnd = new Date(); approxEnd.setDate(approxEnd.getDate() + 160);
       document.getElementById('setupEndDate').value = new Date(approxEnd.getTime() - approxEnd.getTimezoneOffset()*60000).toISOString().slice(0,10);
     })();
 
-    // Click area foto -> input file
+    /* ====== Foto upload ====== */
     document.getElementById('photoUpload').addEventListener('click', () => {
       document.getElementById('photo').click();
     });
-
-    // Anteprima foto
     document.getElementById('photo').addEventListener('change', e => {
       const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
@@ -331,7 +373,7 @@
       reader.readAsDataURL(file);
     });
 
-    // ========== IndexedDB ==========
+    /* ====== IndexedDB ====== */
     const initDB = () => new Promise((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
       req.onerror = () => reject(req.error);
@@ -404,7 +446,7 @@
       }
     }
 
-    // ========== Form Inserimento ==========
+    /* ====== Form Inserimento ====== */
     document.getElementById('weightForm').addEventListener('submit', async e => {
       e.preventDefault();
       if (!settings.startWeight || !settings.targetWeight){
@@ -450,7 +492,7 @@
       }
     }
 
-    // ========== UI ==========
+    /* ====== UI ====== */
     function updateUI(){
       // Titolo con obiettivo
       document.getElementById('appTitle').textContent = `🎯 Obiettivo: ${settings.targetWeight} kg`;
@@ -479,7 +521,7 @@
         bar.style.width = '0%'; bar.textContent = '0%';
       }
 
-      // Media settimana (sugli ultimi N inserimenti, max 7)
+      // Media settimana (ultimi inserimenti, max 7)
       const weeklyAvgEl = document.getElementById('weeklyAvg');
       if (entries.length >= 7) {
         const last = entries.slice(0,7);
@@ -569,7 +611,6 @@
     function openSettings(isFirst=false){
       document.getElementById('setupOverlay').style.display='flex';
       if (!isFirst){
-        // Precompila coi valori esistenti
         if (settings.startDate)   document.getElementById('setupStartDate').value = settings.startDate;
         if (settings.endDate)     document.getElementById('setupEndDate').value = settings.endDate;
         if (settings.startWeight) document.getElementById('setupStartWeight').value = settings.startWeight;
