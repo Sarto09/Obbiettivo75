@@ -1,662 +1,562 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trasformazione 2025 – Tracker</title>
-    <!--
-      Manifest and PWA configuration.  
-      These entries let mobile browsers install the app as a standalone experience
-      on iOS and Android.  The theme-color defines the color of the browser
-      chrome in supported environments.  See manifest.webmanifest and sw.js for
-      additional configuration.
-    -->
-    <link rel="manifest" href="manifest.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Trasformazione 2025 – Tracker</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#667eea" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-    <style>
-        /*
-         * Global resets and typography
-         *
-         * Keep the styling largely consistent with the user's original design,
-         * but tweak a few colors and transitions for smoother focus states.
-         */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .header {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            text-align: center;
-        }
-        .header h1 {
-            color: #667eea;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        .target-info {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid #f0f0f0;
-        }
-        .stat {
-            text-align: center;
-        }
-        .stat-label {
-            font-size: 12px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-            margin-top: 5px;
-        }
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .card h2 {
-            color: #667eea;
-            font-size: 20px;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-        input[type="number"],
-        input[type="date"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        input[type="number"]:focus,
-        input[type="date"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .photo-upload {
-            border: 3px dashed #e0e0e0;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .photo-upload:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-        }
-        .photo-upload input {
-            display: none;
-        }
-        .photo-preview {
-            max-width: 100%;
-            max-height: 300px;
-            margin-top: 15px;
-            border-radius: 10px;
-        }
-        .btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-            margin-bottom: 10px;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        .btn:active {
-            transform: translateY(0);
-        }
-        .btn-secondary {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        }
-        .btn-danger {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        }
-        .backup-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .backup-buttons .btn {
-            font-size: 14px;
-            padding: 10px;
-        }
-        .history {
-            margin-top: 20px;
-        }
-        .history-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9ff;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        .history-item img,
-        .history-item .placeholder {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-right: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .history-info {
-            flex: 1;
-        }
-        .history-date {
-            font-size: 14px;
-            color: #888;
-        }
-        .history-weight {
-            font-size: 20px;
-            font-weight: bold;
-            color: #667eea;
-        }
-        .delete-btn {
-            background: #ff4757;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 30px;
-            background: #e0e0e0;
-            border-radius: 15px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.5s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .success-message {
-            background: #2ecc71;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-            display: none;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 10px;
-        }
-        .file-input-label {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        #restoreFile {
-            display: none;
-        }
-    </style>
+  <!-- Chart.js per il grafico -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --brand-1:#667eea;
+      --brand-2:#764ba2;
+      --text:#2b2b2b;
+      --muted:#777;
+      --card-bg:#fff;
+      --bg-grad:linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 100%);
+      --radius-xl:20px;
+      --radius-md:12px;
+      --shadow:0 10px 30px rgba(0,0,0,.18);
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background:var(--bg-grad);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:10px;
+    }
+    .container{
+      max-width:720px;margin:0 auto;padding:8px;
+    }
+    .header{
+      background:var(--card-bg);
+      border-radius:var(--radius-xl);
+      padding:20px;
+      margin:8px 0 14px;
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+    .header h1{
+      color:var(--brand-1);
+      font-size:22px;
+      line-height:1.2;
+      margin-bottom:6px;
+    }
+    .target-info{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1.5px solid #f0f0f0;
+    }
+    .stat{text-align:center}
+    .stat-label{
+      font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px
+    }
+    .stat-value{
+      font-size:18px;font-weight:800;color:var(--brand-1);margin-top:4px
+    }
+    .progress-bar{
+      width:100%;height:26px;background:#ececff;border-radius:14px;overflow:hidden;margin:14px 0 4px;
+    }
+    .progress-fill{
+      height:100%;background:linear-gradient(90deg, var(--brand-1) 0%, var(--brand-2) 100%);
+      transition:width .4s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px
+    }
+    .card{
+      background:var(--card-bg);border-radius:var(--radius-xl);padding:18px;margin:14px 0;box-shadow:var(--shadow)
+    }
+    .card h2{color:var(--brand-1);font-size:18px;margin-bottom:14px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .form-group{display:flex;flex-direction:column;gap:6px}
+    label{font-weight:600;color:#4a4a4a;font-size:14px}
+    input[type="number"],input[type="date"]{
+      width:100%;padding:12px 12px;border:2px solid #e6e6f7;border-radius:12px;font-size:16px;
+      transition:border-color .2s;background:#fafaff
+    }
+    input[type="number"]:focus,input[type="date"]:focus{outline:none;border-color:var(--brand-1);background:#fff}
+    .photo-upload{
+      border:2.5px dashed #e0e0f5;border-radius:12px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;background:#fafaff
+    }
+    .photo-upload:hover{border-color:var(--brand-1);background:#f4f6ff}
+    .photo-upload input{display:none}
+    .photo-preview{max-width:100%;max-height:320px;margin-top:10px;border-radius:12px}
+    .btn{
+      width:100%;padding:14px;background:linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 100%);
+      color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;transition:transform .15s;margin-top:4px
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn-secondary{background:linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)}
+    .btn-danger{background:linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)}
+    .backup-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .backup-buttons .btn{font-size:14px;padding:12px}
+    .success-message{
+      background:#2ecc71;color:#fff;padding:14px;border-radius:12px;margin-bottom:12px;text-align:center;font-weight:800;display:none
+    }
+    .history{margin-top:10px}
+    .history-item{
+      display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:12px;
+      padding:10px;background:#f6f7ff;border-radius:12px;margin-bottom:10px
+    }
+    .history-item img,.history-item .placeholder{
+      width:64px;height:64px;object-fit:cover;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fff
+    }
+    .history-date{font-size:13px;color:#8b8b9a}
+    .history-weight{font-size:18px;font-weight:800;color:var(--brand-1)}
+    .delete-btn{background:#ff4757;color:#fff;border:none;padding:8px 12px;border-radius:10px;cursor:pointer;font-size:12px}
+    .file-input-label{display:block;padding:10px 14px;background:var(--brand-1);color:#fff;border-radius:10px;cursor:pointer;font-size:14px;text-align:center;margin-top:10px}
+    #restoreFile{display:none}
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;align-items:center;justify-content:center}
+    .modal img{max-width:92%;max-height:92%;border-radius:12px}
+
+    /* Migliorie mobile */
+    @media (max-width: 430px){
+      body{padding:10px}
+      .container{padding:6px}
+      .header{padding:16px}
+      .header h1{font-size:20px}
+      .target-info{grid-template-columns:1fr 1fr 1fr;gap:6px}
+      .stat-value{font-size:16px}
+      .card{padding:14px}
+      .form-grid{grid-template-columns:1fr;gap:8px}
+      .history-item{grid-template-columns:56px 1fr auto}
+      .history-weight{font-size:16px}
+      .btn{font-size:16px}
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="success-message" id="successMessage">✅ Dati salvati con successo!</div>
-        <div class="header">
-            <h1>🎯 Obiettivo: -9.2 kg</h1>
-            <div class="target-info">
-                <div class="stat">
-                    <div class="stat-label">Giorni rimanenti</div>
-                    <div class="stat-value" id="daysLeft">-</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Persi finora</div>
-                    <div class="stat-value" id="totalLost">0 kg</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Media settimana</div>
-                    <div class="stat-value" id="weeklyAvg">- kg</div>
-                </div>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressBar" style="width: 0%">0%</div>
-            </div>
+  <div class="container">
+    <div class="success-message" id="successMessage">✅ Dati salvati con successo!</div>
+
+    <div class="header">
+      <h1>🎯 Obiettivo: 75 kg</h1>
+      <div class="target-info">
+        <div class="stat">
+          <div class="stat-label">Giorni rimanenti</div>
+          <div class="stat-value" id="daysLeft">-</div>
         </div>
-        <div class="card">
-            <h2>📝 Inserisci peso di oggi</h2>
-            <form id="weightForm">
-                <div class="form-group">
-                    <label for="date">Data</label>
-                    <input type="date" id="date" required>
-                </div>
-                <div class="form-group">
-                    <label for="weight">Peso (kg)</label>
-                    <input type="number" id="weight" step="0.1" placeholder="Es: 82.5" required>
-                </div>
-                <div class="form-group">
-                    <label>📸 Foto del giorno</label>
-                    <div class="photo-upload" id="photoUpload">
-                        <input type="file" id="photo" accept="image/*" capture="environment">
-                        <div>📷 Tocca per scattare o caricare foto</div>
-                        <img id="photoPreview" class="photo-preview" style="display: none;" alt="Anteprima foto del giorno">
-                    </div>
-                </div>
-                <button type="submit" class="btn">💪 Salva Progresso</button>
-            </form>
+        <div class="stat">
+          <div class="stat-label">Persi finora</div>
+          <div class="stat-value" id="totalLost">0 kg</div>
         </div>
-        <div class="card">
-            <h2>💾 Backup & Ripristino</h2>
-            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
-                Scarica i tuoi dati per non perderli mai! Salvali su Google Drive, Dropbox o nel telefono.
-            </p>
-            <div class="backup-buttons">
-                <button onclick="downloadBackup()" class="btn btn-secondary">📥 Scarica Backup</button>
-                <button onclick="downloadExcel()" class="btn btn-secondary">📊 Esporta Excel</button>
-            </div>
-            <label for="restoreFile" class="file-input-label" style="display: block; text-align: center; margin-top: 10px;">
-                📤 Carica Backup
-            </label>
-            <input type="file" id="restoreFile" accept=".json" onchange="restoreBackup(event)">
+        <div class="stat">
+          <div class="stat-label">Media settimana</div>
+          <div class="stat-value" id="weeklyAvg">- kg</div>
         </div>
-        <div class="card">
-            <h2>📊 Storico</h2>
-            <div id="history" class="history"></div>
-        </div>
-    </div>
-    <div class="modal" id="imageModal" onclick="closeModal()">
-        <img id="modalImage" src="" alt="Foto ingrandita">
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressBar" style="width:0%">0%</div>
+      </div>
     </div>
 
-    <!--
-      Main application script.
-      The logic persists user data via IndexedDB, handles UI updates,
-      generates backups and CSV exports, and registers a service worker
-      to enable offline access.  Functions are declared as const to
-      improve readability and avoid accidental hoisting.
-    -->
-    <script>
-        const TARGET_WEIGHT_LOSS = 9.2;
-        const TARGET_DATE = new Date('2025-03-31');
-        const DB_NAME = 'WeightTrackerDB';
-        const DB_VERSION = 1;
-        let db = null;
-        let entries = [];
-        let startWeight = null;
+    <div class="card">
+      <h2>📈 Andamento peso</h2>
+      <canvas id="weightChart" height="260" aria-label="Grafico andamento peso" role="img"></canvas>
+    </div>
 
-        // Initialize IndexedDB
-        const initDB = () => new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => {
-                db = request.result;
-                resolve(db);
-            };
-            request.onupgradeneeded = event => {
-                const upgradeDb = event.target.result;
-                if (!upgradeDb.objectStoreNames.contains('entries')) {
-                    upgradeDb.createObjectStore('entries', { keyPath: 'date' });
-                }
-                if (!upgradeDb.objectStoreNames.contains('settings')) {
-                    upgradeDb.createObjectStore('settings', { keyPath: 'key' });
-                }
-            };
-        });
+    <div class="card">
+      <h2>📝 Inserisci peso di oggi</h2>
+      <form id="weightForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="date">Data</label>
+            <input type="date" id="date" required />
+          </div>
+          <div class="form-group">
+            <label for="weight">Peso (kg)</label>
+            <input type="number" id="weight" step="0.1" placeholder="Es: 84.2" required />
+          </div>
+        </div>
 
-        // Load data from IndexedDB
-        const loadData = async () => {
-            const transaction = db.transaction(['entries', 'settings'], 'readonly');
-            const entriesStore = transaction.objectStore('entries');
-            const entriesRequest = entriesStore.getAll();
-            entriesRequest.onsuccess = () => {
-                // Sort descending by date
-                entries = entriesRequest.result.sort((a, b) => new Date(b.date) - new Date(a.date));
-            };
-            const settingsStore = transaction.objectStore('settings');
-            const settingsRequest = settingsStore.get('startWeight');
-            settingsRequest.onsuccess = () => {
-                if (settingsRequest.result) {
-                    startWeight = settingsRequest.result.value;
-                }
-            };
-            transaction.oncomplete = () => {
-                updateUI();
-            };
-        };
+        <div class="form-group" style="margin-top:8px">
+          <label>📸 Foto del giorno</label>
+          <div class="photo-upload" id="photoUpload">
+            <input type="file" id="photo" accept="image/*" capture="environment" />
+            <div>📷 Tocca per scattare o caricare foto</div>
+            <img id="photoPreview" class="photo-preview" style="display:none" alt="Anteprima foto del giorno" />
+          </div>
+        </div>
 
-        // Save an entry into IndexedDB
-        const saveEntry = entry => new Promise((resolve, reject) => {
-            const transaction = db.transaction(['entries'], 'readwrite');
-            const store = transaction.objectStore('entries');
-            const request = store.put(entry);
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
-        });
+        <button type="submit" class="btn">💪 Salva Progresso</button>
+      </form>
+    </div>
 
-        // Save start weight into settings
-        const saveStartWeight = weight => new Promise((resolve, reject) => {
-            const transaction = db.transaction(['settings'], 'readwrite');
-            const store = transaction.objectStore('settings');
-            const request = store.put({ key: 'startWeight', value: weight });
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
-        });
+    <div class="card">
+      <h2>💾 Backup & Ripristino</h2>
+      <p style="color:#666;font-size:14px;margin-bottom:10px">
+        Scarica i tuoi dati e salvali su Google Drive, Dropbox o nel telefono.
+      </p>
+      <div class="backup-buttons">
+        <button onclick="downloadBackup()" class="btn btn-secondary">📥 Scarica Backup</button>
+        <button onclick="downloadExcel()" class="btn btn-secondary">📊 Esporta Excel</button>
+      </div>
+      <label for="restoreFile" class="file-input-label">📤 Carica Backup</label>
+      <input type="file" id="restoreFile" accept=".json" onchange="restoreBackup(event)" />
+    </div>
 
-        // Delete an entry from IndexedDB by date
-        const deleteEntryFromDB = date => new Promise((resolve, reject) => {
-            const transaction = db.transaction(['entries'], 'readwrite');
-            const store = transaction.objectStore('entries');
-            const request = store.delete(date);
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
-        });
+    <div class="card">
+      <h2>📊 Storico</h2>
+      <div id="history" class="history"></div>
+    </div>
+  </div>
 
-        // Set current date as default in the form
-        document.getElementById('date').valueAsDate = new Date();
+  <div class="modal" id="imageModal" onclick="closeModal()">
+    <img id="modalImage" src="" alt="Foto ingrandita" />
+  </div>
 
-        // Photo upload click triggers hidden file input
-        document.getElementById('photoUpload').addEventListener('click', () => {
-            document.getElementById('photo').click();
-        });
+  <script>
+    // === Parametri personali ===
+    const DEFAULT_START_WEIGHT = 84.2;     // usato solo se non hai già uno start salvato
+    const TARGET_WEIGHT = 75;              // obiettivo finale
+    const TARGET_DATE = new Date('2026-03-31'); // data fine
 
-        // Show preview when photo changes
-        document.getElementById('photo').addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = event => {
-                    const preview = document.getElementById('photoPreview');
-                    preview.src = event.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+    // === Database (non modificare nome/versione per non perdere i dati) ===
+    const DB_NAME = 'WeightTrackerDB';
+    const DB_VERSION = 1;
 
-        // Form submission
-        document.getElementById('weightForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const date = document.getElementById('date').value;
-            const weight = parseFloat(document.getElementById('weight').value);
-            const photoInput = document.getElementById('photo');
-            // Set start weight if it's the first entry
-            if (startWeight === null) {
-                startWeight = weight;
-                await saveStartWeight(weight);
-            }
-            const entry = { date: date, weight: weight, photo: null };
-            if (photoInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = async event => {
-                    entry.photo = event.target.result;
-                    await saveEntry(entry);
-                    await loadData();
-                    showSuccess();
-                    resetForm();
-                };
-                reader.readAsDataURL(photoInput.files[0]);
-            } else {
-                await saveEntry(entry);
-                await loadData();
-                showSuccess();
-                resetForm();
-            }
-        });
+    // === Stato ===
+    let db = null;
+    let entries = []; // [{date, weight, photo(base64)}]
+    let startWeight = null;
 
-        // Show success message
-        const showSuccess = () => {
-            const msg = document.getElementById('successMessage');
-            msg.style.display = 'block';
-            setTimeout(() => {
-                msg.style.display = 'none';
-            }, 3000);
-        };
+    // === Chart.js ===
+    let chartRef = null;
 
-        // Reset form fields and preview
-        const resetForm = () => {
-            document.getElementById('weight').value = '';
-            document.getElementById('photo').value = '';
-            document.getElementById('photoPreview').style.display = 'none';
-        };
+    // Imposta la data odierna di default nel form
+    (function setToday(){
+      const d = new Date();
+      // Fix per timezone iOS: set a ISO string solo YYYY-MM-DD
+      const iso = new Date(d.getTime() - (d.getTimezoneOffset()*60000)).toISOString().slice(0,10);
+      document.getElementById('date').value = iso;
+    })();
 
-        // Delete entry by date (confirmation prompt)
-        const deleteEntry = async date => {
-            if (confirm('Vuoi eliminare questa entry?')) {
-                await deleteEntryFromDB(date);
-                await loadData();
-            }
-        };
+    // Click sull'area foto -> apre input file
+    document.getElementById('photoUpload').addEventListener('click', () => {
+      document.getElementById('photo').click();
+    });
 
-        // Update the UI with current data
-        const updateUI = () => {
-            // Days left to target date
-            const today = new Date();
-            const dayDiff = Math.ceil((TARGET_DATE - today) / (1000 * 60 * 60 * 24));
-            document.getElementById('daysLeft').textContent = dayDiff > 0 ? dayDiff : 0;
-            // Weight lost and progress bar
-            if (entries.length > 0 && startWeight !== null) {
-                const currentWeight = entries[0].weight;
-                const weightLost = startWeight - currentWeight;
-                document.getElementById('totalLost').textContent = weightLost.toFixed(1) + ' kg';
-                const progress = Math.min((weightLost / TARGET_WEIGHT_LOSS) * 100, 100);
-                const bar = document.getElementById('progressBar');
-                bar.style.width = progress + '%';
-                bar.textContent = progress.toFixed(0) + '%';
-            } else {
-                document.getElementById('totalLost').textContent = '0 kg';
-                const bar = document.getElementById('progressBar');
-                bar.style.width = '0%';
-                bar.textContent = '0%';
-            }
-            // Weekly average
-            const weeklyAvgEl = document.getElementById('weeklyAvg');
-            if (entries.length >= 7) {
-                const lastWeek = entries.slice(0, 7);
-                const sum = lastWeek.reduce((acc, e) => acc + e.weight, 0);
-                weeklyAvgEl.textContent = (sum / 7).toFixed(1) + ' kg';
-            } else if (entries.length > 0) {
-                const sum = entries.reduce((acc, e) => acc + e.weight, 0);
-                weeklyAvgEl.textContent = (sum / entries.length).toFixed(1) + ' kg';
-            } else {
-                weeklyAvgEl.textContent = '- kg';
-            }
-            // History list
-            const historyDiv = document.getElementById('history');
-            if (entries.length === 0) {
-                historyDiv.innerHTML = '<p style="text-align: center; color: #888;">Nessun dato ancora. Inizia a tracciare!</p>';
-            } else {
-                historyDiv.innerHTML = entries
-                    .map(entry => {
-                        const dateStr = new Date(entry.date).toLocaleDateString('it-IT', {
-                            weekday: 'short',
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                        });
-                        const imgEl = entry.photo
-                            ? `<img src="${entry.photo}" alt="Foto ${dateStr}" onclick="openModal('${entry.photo}')">`
-                            : `<div class="placeholder" onclick="alert('Nessuna foto per questa data')">📷</div>`;
-                        return `
-                            <div class="history-item">
-                                ${imgEl}
-                                <div class="history-info">
-                                    <div class="history-date">${dateStr}</div>
-                                    <div class="history-weight">${entry.weight} kg</div>
-                                </div>
-                                <button class="delete-btn" onclick="deleteEntry('${entry.date}')">🗑️</button>
-                            </div>
-                        `;
-                    })
-                    .join('');
-            }
-        };
+    // Anteprima foto
+    document.getElementById('photo').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const preview = document.getElementById('photoPreview');
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
 
-        // Backup download
-        const downloadBackup = () => {
-            const data = {
-                version: 1,
-                exportDate: new Date().toISOString(),
-                startWeight: startWeight,
-                entries: entries
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `weight-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            alert('✅ Backup scaricato! Salvalo in un posto sicuro.');
-        };
-
-        // Restore from backup
-        const restoreBackup = async event => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async e => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (!data.entries || !Array.isArray(data.entries)) {
-                        alert('❌ File di backup non valido!');
-                        return;
-                    }
-                    if (confirm(`Vuoi ripristinare ${data.entries.length} entries dal backup? I dati attuali verranno sovrascritti.`)) {
-                        // Clear current data
-                        const transaction = db.transaction(['entries', 'settings'], 'readwrite');
-                        transaction.objectStore('entries').clear();
-                        transaction.objectStore('settings').clear();
-                        // Restore startWeight
-                        startWeight = data.startWeight;
-                        if (startWeight) {
-                            await saveStartWeight(startWeight);
-                        }
-                        // Restore entries
-                        for (const entry of data.entries) {
-                            await saveEntry(entry);
-                        }
-                        await loadData();
-                        alert('✅ Backup ripristinato con successo!');
-                    }
-                } catch (error) {
-                    alert('❌ Errore nel ripristino del backup: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-        };
-
-        // Export to CSV/Excel
-        const downloadExcel = () => {
-            let csv = 'Data,Peso (kg),Differenza dal precedente\n';
-            for (let i = entries.length - 1; i >= 0; i--) {
-                const entry = entries[i];
-                const diff = i < entries.length - 1 ? (entry.weight - entries[i + 1].weight).toFixed(1) : '0';
-                csv += `${entry.date},${entry.weight},${diff}\n`;
-            }
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `weight-tracker-${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            alert('✅ File Excel scaricato!');
-        };
-
-        // Photo modal functions
-        const openModal = src => {
-            const modalImg = document.getElementById('modalImage');
-            modalImg.src = src;
-            document.getElementById('imageModal').style.display = 'flex';
-        };
-        const closeModal = () => {
-            document.getElementById('imageModal').style.display = 'none';
-        };
-
-        // Service worker registration for PWA offline support
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.error('Service worker registration failed:', err));
-            });
+    // === IndexedDB: init / load ===
+    const initDB = () => new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => { db = request.result; resolve(db); };
+      request.onupgradeneeded = event => {
+        const udb = event.target.result;
+        if (!udb.objectStoreNames.contains('entries')) {
+          udb.createObjectStore('entries', { keyPath: 'date' });
         }
+        if (!udb.objectStoreNames.contains('settings')) {
+          udb.createObjectStore('settings', { keyPath: 'key' });
+        }
+      };
+    });
 
-        // Initialize database and load data
-        initDB()
-            .then(loadData)
-            .catch(error => {
-                console.error('Errore inizializzazione database:', error);
-                alert("Errore nell'inizializzazione. Ricarica la pagina.");
-            });
-    </script>
+    const loadData = async () => {
+      const tx = db.transaction(['entries','settings'], 'readonly');
+      const eStore = tx.objectStore('entries');
+      const sStore = tx.objectStore('settings');
+
+      // entries
+      const entriesReq = eStore.getAll();
+      entriesReq.onsuccess = () => {
+        // ordina DESC per UI, ma useremo ASC per il grafico
+        entries = entriesReq.result.sort((a,b) => new Date(b.date) - new Date(a.date));
+      };
+
+      // startWeight
+      const swReq = sStore.get('startWeight');
+      swReq.onsuccess = () => {
+        startWeight = swReq.result ? swReq.result.value : null;
+      };
+
+      tx.oncomplete = async () => {
+        // Se non hai startWeight salvato, imposta quello di default una sola volta
+        if (startWeight === null) {
+          await saveStartWeight(DEFAULT_START_WEIGHT);
+          startWeight = DEFAULT_START_WEIGHT;
+        }
+        updateUI();
+        renderChart();
+      };
+    };
+
+    const saveEntry = entry => new Promise((resolve, reject) => {
+      const tx = db.transaction(['entries'], 'readwrite');
+      tx.objectStore('entries').put(entry).onsuccess = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+
+    const deleteEntryFromDB = date => new Promise((resolve, reject) => {
+      const tx = db.transaction(['entries'], 'readwrite');
+      tx.objectStore('entries').delete(date).onsuccess = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+
+    const saveStartWeight = weight => new Promise((resolve, reject) => {
+      const tx = db.transaction(['settings'], 'readwrite');
+      tx.objectStore('settings').put({ key:'startWeight', value:weight }).onsuccess = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+
+    // Form submit
+    document.getElementById('weightForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const date = document.getElementById('date').value;
+      const weight = parseFloat(document.getElementById('weight').value);
+      const photoInput = document.getElementById('photo');
+
+      // Imposta startWeight se manca (ma NON sovrascrive se già presente)
+      if (startWeight === null) {
+        startWeight = isFinite(weight) ? weight : DEFAULT_START_WEIGHT;
+        await saveStartWeight(startWeight);
+      }
+
+      const entry = { date, weight, photo:null };
+
+      if (photoInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = async ev => {
+          entry.photo = ev.target.result;
+          await saveEntry(entry);
+          await loadData();
+          showSuccess(); resetForm();
+        };
+        reader.readAsDataURL(photoInput.files[0]);
+      } else {
+        await saveEntry(entry);
+        await loadData();
+        showSuccess(); resetForm();
+      }
+    });
+
+    const showSuccess = () => {
+      const msg = document.getElementById('successMessage');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 2200);
+    };
+
+    const resetForm = () => {
+      document.getElementById('weight').value = '';
+      document.getElementById('photo').value = '';
+      document.getElementById('photoPreview').style.display = 'none';
+      // mantieni la data odierna
+    };
+
+    const deleteEntry = async (date) => {
+      if (confirm('Vuoi eliminare questa entry?')) {
+        await deleteEntryFromDB(date);
+        await loadData();
+      }
+    };
+
+    const updateUI = () => {
+      // Giorni rimanenti
+      const today = new Date();
+      const diffDays = Math.ceil((TARGET_DATE - today) / (1000*60*60*24));
+      document.getElementById('daysLeft').textContent = diffDays > 0 ? diffDays : 0;
+
+      // Progressi
+      const bar = document.getElementById('progressBar');
+      if (entries.length > 0 && startWeight !== null) {
+        const currentWeight = entries[0].weight; // più recente
+        const weightLost = (startWeight - currentWeight);
+        const targetLoss = Math.max(startWeight - TARGET_WEIGHT, 0.0001);
+        const progress = Math.min((weightLost / targetLoss) * 100, 100);
+
+        document.getElementById('totalLost').textContent = weightLost.toFixed(1) + ' kg';
+        bar.style.width = progress.toFixed(1) + '%';
+        bar.textContent = progress.toFixed(0) + '%';
+      } else {
+        document.getElementById('totalLost').textContent = '0 kg';
+        bar.style.width = '0%';
+        bar.textContent = '0%';
+      }
+
+      // Media settimana (sull’ultima settimana di inserimenti, non calendario)
+      const weeklyAvgEl = document.getElementById('weeklyAvg');
+      if (entries.length >= 7) {
+        const lastWeek = entries.slice(0, 7);
+        const sum = lastWeek.reduce((acc,e)=> acc + e.weight, 0);
+        weeklyAvgEl.textContent = (sum/7).toFixed(1) + ' kg';
+      } else if (entries.length > 0) {
+        const sum = entries.reduce((acc,e)=> acc + e.weight, 0);
+        weeklyAvgEl.textContent = (sum/entries.length).toFixed(1) + ' kg';
+      } else {
+        weeklyAvgEl.textContent = '- kg';
+      }
+
+      // Storico
+      const historyDiv = document.getElementById('history');
+      if (entries.length === 0) {
+        historyDiv.innerHTML = '<p style="text-align:center;color:#888">Nessun dato ancora. Inizia a tracciare!</p>';
+      } else {
+        historyDiv.innerHTML = entries.map(entry => {
+          const dateStr = new Date(entry.date).toLocaleDateString('it-IT',{
+            weekday:'short', day:'numeric', month:'short', year:'numeric'
+          });
+          const imgEl = entry.photo
+            ? `<img src="${entry.photo}" alt="Foto ${dateStr}" onclick="openModal('${entry.photo}')" />`
+            : `<div class="placeholder" onclick="alert('Nessuna foto per questa data')">📷</div>`;
+          return `
+            <div class="history-item">
+              ${imgEl}
+              <div>
+                <div class="history-date">${dateStr}</div>
+                <div class="history-weight">${entry.weight} kg</div>
+              </div>
+              <button class="delete-btn" onclick="deleteEntry('${entry.date}')">🗑️</button>
+            </div>
+          `;
+        }).join('');
+      }
+    };
+
+    // === Backup / Ripristino / Export ===
+    const downloadBackup = () => {
+      const data = { version:1, exportDate:new Date().toISOString(), startWeight, entries };
+      const blob = new Blob([JSON.stringify(data,null,2)], { type:'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `weight-tracker-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click(); URL.revokeObjectURL(url);
+      alert('✅ Backup scaricato! Salvalo in un posto sicuro.');
+    };
+
+    const restoreBackup = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async e => {
+        try{
+          const data = JSON.parse(e.target.result);
+          if (!data.entries || !Array.isArray(data.entries)) {
+            alert('❌ File di backup non valido!'); return;
+          }
+          if (confirm(`Vuoi ripristinare ${data.entries.length} entries dal backup? I dati attuali verranno sovrascritti.`)){
+            const tx = db.transaction(['entries','settings'],'readwrite');
+            tx.objectStore('entries').clear();
+            tx.objectStore('settings').clear();
+
+            startWeight = data.startWeight ?? DEFAULT_START_WEIGHT;
+            await saveStartWeight(startWeight);
+
+            for (const entry of data.entries) { await saveEntry(entry); }
+            await loadData();
+            alert('✅ Backup ripristinato con successo!');
+          }
+        }catch(err){ alert('❌ Errore nel ripristino del backup: '+ err.message); }
+      };
+      reader.readAsText(file);
+    };
+
+    const downloadExcel = () => {
+      let csv = 'Data,Peso (kg),Differenza dal precedente\n';
+      for (let i = entries.length - 1; i >= 0; i--){
+        const entry = entries[i];
+        const diff = i < entries.length - 1 ? (entry.weight - entries[i+1].weight).toFixed(1) : '0';
+        csv += `${entry.date},${entry.weight},${diff}\n`;
+      }
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `weight-tracker-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+      alert('✅ File Excel scaricato!');
+    };
+
+    // === Grafico ===
+    function renderChart(){
+      const ctx = document.getElementById('weightChart').getContext('2d');
+      // Dati in ordine cronologico (ASC) per il grafico
+      const asc = [...entries].sort((a,b)=> new Date(a.date) - new Date(b.date));
+      const labels = asc.map(e => new Date(e.date));
+      const weights = asc.map(e => e.weight);
+
+      // Se non ci sono dati, mostra grafico vuoto con linea piatta allo startWeight (se disponibile)
+      const showWeights = weights.length ? weights : (startWeight !== null ? [startWeight] : []);
+
+      if (chartRef) { chartRef.destroy(); }
+      chartRef = new Chart(ctx, {
+        type:'line',
+        data:{
+          labels: labels.length ? labels : [new Date()],
+          datasets:[
+            {
+              label:'Peso (kg)',
+              data: showWeights,
+              tension:.3,
+              fill:false,
+              borderWidth:2,
+              pointRadius:3
+            }
+          ]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          scales:{
+            x:{
+              type:'time',
+              time:{ unit:'day', tooltipFormat:'dd/MM/yyyy' },
+              ticks:{ autoSkip:true, maxTicksLimit:6 }
+            },
+            y:{ beginAtZero:false, ticks:{ precision:1 } }
+          },
+          plugins:{
+            legend:{ display:false },
+            tooltip:{ mode:'index', intersect:false }
+          }
+        }
+      });
+    }
+
+    // === Photo modal ===
+    const openModal = src => {
+      document.getElementById('modalImage').src = src;
+      document.getElementById('imageModal').style.display = 'flex';
+    };
+    const closeModal = () => { document.getElementById('imageModal').style.display = 'none'; };
+
+    // === Service Worker registration ===
+    if ('serviceWorker' in navigator){
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW registration failed:', err));
+      });
+    }
+
+    // === Bootstrap app ===
+    initDB()
+      .then(loadData)
+      .catch(err => {
+        console.error('Errore inizializzazione DB:', err);
+        alert("Errore nell'inizializzazione. Ricarica la pagina.");
+      });
+  </script>
 </body>
 </html>
