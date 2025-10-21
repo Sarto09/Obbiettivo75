@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Trasformazione 2025 – Tracker</title>
+  <title>Trasformazione – Tracker</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#667eea" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <!-- Google Font per la citazione -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
 
-  <!-- Chart.js per il grafico -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js + adapter date-fns per l’asse temporale -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 
   <style>
     :root{
@@ -24,6 +27,8 @@
       --radius-xl:20px;
       --radius-md:12px;
       --shadow:0 10px 30px rgba(0,0,0,.18);
+      --quote-bg:#f0f1f4;
+      --quote-border:#e3e6ea;
     }
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
@@ -35,54 +40,60 @@
       -moz-osx-font-smoothing:grayscale;
       padding:10px;
     }
-    .container{
-      max-width:720px;margin:0 auto;padding:8px;
-    }
+    .container{max-width:720px;margin:0 auto;padding:8px}
     .header{
       background:var(--card-bg);
       border-radius:var(--radius-xl);
-      padding:20px;
+      padding:18px 18px 14px;
       margin:8px 0 14px;
       box-shadow:var(--shadow);
-      text-align:center;
     }
-    .header h1{
-      color:var(--brand-1);
-      font-size:22px;
-      line-height:1.2;
-      margin-bottom:6px;
+    .header-top{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px
+    }
+    .app-title{
+      color:var(--brand-1);font-size:20px;font-weight:800;line-height:1.2
+    }
+    .settings-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      background:#eef0ff;border:1px solid #dfe3ff;color:#3c49b1;
+      padding:8px 12px;border-radius:12px;font-weight:700;cursor:pointer
+    }
+    .motivation{
+      margin:6px 0 10px;
+      background:var(--quote-bg);
+      border:1px solid var(--quote-border);
+      border-radius:16px;
+      padding:12px 14px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
+    }
+    .motivation blockquote{
+      font-family:"Playfair Display", serif;
+      font-style:italic;
+      font-size:17px;
+      line-height:1.4;
+      color:#444;
     }
     .target-info{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-      margin-top:12px;
-      padding-top:12px;
-      border-top:1.5px solid #f0f0f0;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+      margin-top:10px;padding-top:12px;border-top:1.5px solid #f0f0f0
     }
     .stat{text-align:center}
-    .stat-label{
-      font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px
-    }
-    .stat-value{
-      font-size:18px;font-weight:800;color:var(--brand-1);margin-top:4px
-    }
-    .progress-bar{
-      width:100%;height:26px;background:#ececff;border-radius:14px;overflow:hidden;margin:14px 0 4px;
-    }
+    .stat-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px}
+    .stat-value{font-size:18px;font-weight:800;color:var(--brand-1);margin-top:4px}
+    .progress-bar{width:100%;height:26px;background:#ececff;border-radius:14px;overflow:hidden;margin:12px 0 2px}
     .progress-fill{
-      height:100%;background:linear-gradient(90deg, var(--brand-1) 0%, var(--brand-2) 100%);
-      transition:width .4s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px
+      height:100%;
+      background:linear-gradient(90deg, var(--brand-1) 0%, var(--brand-2) 100%);
+      transition:width .4s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px
     }
-    .card{
-      background:var(--card-bg);border-radius:var(--radius-xl);padding:18px;margin:14px 0;box-shadow:var(--shadow)
-    }
+    .card{background:var(--card-bg);border-radius:var(--radius-xl);padding:18px;margin:14px 0;box-shadow:var(--shadow)}
     .card h2{color:var(--brand-1);font-size:18px;margin-bottom:14px}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .form-group{display:flex;flex-direction:column;gap:6px}
     label{font-weight:600;color:#4a4a4a;font-size:14px}
     input[type="number"],input[type="date"]{
-      width:100%;padding:12px 12px;border:2px solid #e6e6f7;border-radius:12px;font-size:16px;
+      width:100%;padding:12px;border:2px solid #e6e6f7;border-radius:12px;font-size:16px;
       transition:border-color .2s;background:#fafaff
     }
     input[type="number"]:focus,input[type="date"]:focus{outline:none;border-color:var(--brand-1);background:#fff}
@@ -121,19 +132,20 @@
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;align-items:center;justify-content:center}
     .modal img{max-width:92%;max-height:92%;border-radius:12px}
 
-    /* Migliorie mobile */
+    /* Setup Modal */
+    .setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1100}
+    .setup-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px;width:min(560px,92vw)}
+    .setup-title{font-size:18px;color:var(--brand-1);font-weight:800;margin-bottom:10px}
+    .setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .setup-actions{display:flex;gap:10px;margin-top:10px}
+    .setup-note{font-size:12px;color:#666;margin-top:6px}
+
+    /* Mobile */
     @media (max-width: 430px){
       body{padding:10px}
       .container{padding:6px}
-      .header{padding:16px}
-      .header h1{font-size:20px}
-      .target-info{grid-template-columns:1fr 1fr 1fr;gap:6px}
-      .stat-value{font-size:16px}
-      .card{padding:14px}
-      .form-grid{grid-template-columns:1fr;gap:8px}
-      .history-item{grid-template-columns:56px 1fr auto}
-      .history-weight{font-size:16px}
-      .btn{font-size:16px}
+      .form-grid{grid-template-columns:1fr}
+      .setup-grid{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -142,7 +154,18 @@
     <div class="success-message" id="successMessage">✅ Dati salvati con successo!</div>
 
     <div class="header">
-      <h1>🎯 Obiettivo: 75 kg</h1>
+      <div class="header-top">
+        <div class="app-title" id="appTitle">🎯 Obiettivo</div>
+        <button class="settings-btn" type="button" onclick="openSettings()">
+          ⚙️ Impostazioni
+        </button>
+      </div>
+
+      <!-- Citazione motivazionale (cambia ogni giorno) -->
+      <div class="motivation" id="motivationBox" aria-live="polite">
+        <blockquote id="motivationQuote">...</blockquote>
+      </div>
+
       <div class="target-info">
         <div class="stat">
           <div class="stat-label">Giorni rimanenti</div>
@@ -164,7 +187,9 @@
 
     <div class="card">
       <h2>📈 Andamento peso</h2>
-      <canvas id="weightChart" height="260" aria-label="Grafico andamento peso" role="img"></canvas>
+      <div style="height:260px">
+        <canvas id="weightChart" aria-label="Grafico andamento peso" role="img"></canvas>
+      </div>
     </div>
 
     <div class="card">
@@ -180,7 +205,6 @@
             <input type="number" id="weight" step="0.1" placeholder="Es: 84.2" required />
           </div>
         </div>
-
         <div class="form-group" style="margin-top:8px">
           <label>📸 Foto del giorno</label>
           <div class="photo-upload" id="photoUpload">
@@ -189,7 +213,6 @@
             <img id="photoPreview" class="photo-preview" style="display:none" alt="Anteprima foto del giorno" />
           </div>
         </div>
-
         <button type="submit" class="btn">💪 Salva Progresso</button>
       </form>
     </div>
@@ -213,61 +236,108 @@
     </div>
   </div>
 
+  <!-- MODAL FOTO -->
   <div class="modal" id="imageModal" onclick="closeModal()">
     <img id="modalImage" src="" alt="Foto ingrandita" />
   </div>
 
-  <script>
-    // === Parametri personali ===
-    const DEFAULT_START_WEIGHT = 84.2;     // usato solo se non hai già uno start salvato
-    const TARGET_WEIGHT = 75;              // obiettivo finale
-    const TARGET_DATE = new Date('2026-03-31'); // data fine
+  <!-- SETUP INIZIALE / IMPOSTAZIONI -->
+  <div class="setup-overlay" id="setupOverlay">
+    <div class="setup-card">
+      <div class="setup-title">⚙️ Configurazione iniziale</div>
+      <div class="setup-grid">
+        <div class="form-group">
+          <label for="setupStartDate">Data inizio</label>
+          <input type="date" id="setupStartDate" required />
+        </div>
+        <div class="form-group">
+          <label for="setupEndDate">Data fine</label>
+          <input type="date" id="setupEndDate" required />
+        </div>
+        <div class="form-group">
+          <label for="setupStartWeight">Peso iniziale (kg)</label>
+          <input type="number" step="0.1" id="setupStartWeight" placeholder="Es: 84.2" required />
+        </div>
+        <div class="form-group">
+          <label for="setupTargetWeight">Peso obiettivo (kg)</label>
+          <input type="number" step="0.1" id="setupTargetWeight" placeholder="Es: 75" required />
+        </div>
+      </div>
+      <div class="setup-actions">
+        <button class="btn" type="button" onclick="saveSettings()">💾 Salva</button>
+        <button class="btn btn-danger" type="button" onclick="resetSettings()">♻️ Reset impostazioni</button>
+        <button class="btn" type="button" onclick="closeSettings()">Chiudi</button>
+      </div>
+      <div class="setup-note">I dati restano sul dispositivo. Puoi riaprire questa schermata con “Impostazioni”.</div>
+    </div>
+  </div>
 
-    // === Database (non modificare nome/versione per non perdere i dati) ===
+  <script>
+    // ========== COSTANTI DB (non cambiare nome/versione per non perdere i dati) ==========
     const DB_NAME = 'WeightTrackerDB';
     const DB_VERSION = 1;
 
-    // === Stato ===
+    // ========== STATO ==========
     let db = null;
     let entries = []; // [{date, weight, photo(base64)}]
-    let startWeight = null;
+    let settings = { startDate:null, endDate:null, startWeight:null, targetWeight:null };
 
-    // === Chart.js ===
+    // Chart.js ref
     let chartRef = null;
 
-    // Imposta la data odierna di default nel form
-    (function setToday(){
+    // Citazioni (cambia quotidianamente, deterministico per data)
+    const QUOTES = [
+      "La costanza batte la motivazione.",
+      "Un piccolo passo ogni giorno diventa una lunga strada.",
+      "Focalizzati sul processo, il risultato seguirà.",
+      "La disciplina è scegliere ciò che vuoi di più, non ciò che vuoi adesso.",
+      "Se non puoi volare, corri. Se non puoi correre, cammina. Ma non fermarti.",
+      "La somma di piccole scelte crea grandi cambiamenti.",
+      "Meglio imperfetto che rimandato.",
+      "Il corpo segue dove la mente decide di andare.",
+      "Oggi è il giorno migliore per cominciare.",
+      "Avanza di un centimetro, ma avanza."
+    ];
+
+    // Helper: ISO-only date (YYYY-MM-DD) per evitare problemi di timezone
+    const todayISO = () => {
       const d = new Date();
-      // Fix per timezone iOS: set a ISO string solo YYYY-MM-DD
-      const iso = new Date(d.getTime() - (d.getTimezoneOffset()*60000)).toISOString().slice(0,10);
-      document.getElementById('date').value = iso;
+      return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    };
+
+    // Imposta data odierna nel form di inserimento
+    (function setDefaultDate(){
+      document.getElementById('date').value = todayISO();
+      // Setup defaults per la modale
+      document.getElementById('setupStartDate').value = todayISO();
+      // default end date + 160 giorni circa
+      const approxEnd = new Date(); approxEnd.setDate(approxEnd.getDate() + 160);
+      document.getElementById('setupEndDate').value = new Date(approxEnd.getTime() - approxEnd.getTimezoneOffset()*60000).toISOString().slice(0,10);
     })();
 
-    // Click sull'area foto -> apre input file
+    // Click area foto -> input file
     document.getElementById('photoUpload').addEventListener('click', () => {
       document.getElementById('photo').click();
     });
 
     // Anteprima foto
     document.getElementById('photo').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
+      const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = ev => {
         const preview = document.getElementById('photoPreview');
-        preview.src = ev.target.result;
-        preview.style.display = 'block';
+        preview.src = ev.target.result; preview.style.display = 'block';
       };
       reader.readAsDataURL(file);
     });
 
-    // === IndexedDB: init / load ===
+    // ========== IndexedDB ==========
     const initDB = () => new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => { db = request.result; resolve(db); };
-      request.onupgradeneeded = event => {
-        const udb = event.target.result;
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onerror = () => reject(req.error);
+      req.onsuccess = () => { db = req.result; resolve(db); };
+      req.onupgradeneeded = e => {
+        const udb = e.target.result;
         if (!udb.objectStoreNames.contains('entries')) {
           udb.createObjectStore('entries', { keyPath: 'date' });
         }
@@ -277,66 +347,76 @@
       };
     });
 
-    const loadData = async () => {
-      const tx = db.transaction(['entries','settings'], 'readonly');
-      const eStore = tx.objectStore('entries');
-      const sStore = tx.objectStore('settings');
+    const getStoreAll = (storeName) => new Promise((resolve, reject) => {
+      const tx = db.transaction([storeName],'readonly');
+      const st = tx.objectStore(storeName);
+      const req = st.getAll();
+      req.onerror = () => reject(req.error);
+      req.onsuccess = () => resolve(req.result);
+    });
 
-      // entries
-      const entriesReq = eStore.getAll();
-      entriesReq.onsuccess = () => {
-        // ordina DESC per UI, ma useremo ASC per il grafico
-        entries = entriesReq.result.sort((a,b) => new Date(b.date) - new Date(a.date));
-      };
+    const getSetting = (key) => new Promise((resolve) => {
+      const tx = db.transaction(['settings'],'readonly');
+      const st = tx.objectStore('settings');
+      const req = st.get(key);
+      req.onsuccess = () => resolve(req.result ? req.result.value : null);
+      req.onerror = () => resolve(null);
+    });
 
-      // startWeight
-      const swReq = sStore.get('startWeight');
-      swReq.onsuccess = () => {
-        startWeight = swReq.result ? swReq.result.value : null;
-      };
+    const setSetting = (key, value) => new Promise((resolve, reject) => {
+      const tx = db.transaction(['settings'],'readwrite');
+      tx.objectStore('settings').put({ key, value }).onsuccess = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
 
-      tx.oncomplete = async () => {
-        // Se non hai startWeight salvato, imposta quello di default una sola volta
-        if (startWeight === null) {
-          await saveStartWeight(DEFAULT_START_WEIGHT);
-          startWeight = DEFAULT_START_WEIGHT;
-        }
-        updateUI();
-        renderChart();
-      };
-    };
+    const clearStore = (storeName) => new Promise((resolve, reject) => {
+      const tx = db.transaction([storeName],'readwrite');
+      tx.objectStore(storeName).clear().onsuccess = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
 
     const saveEntry = entry => new Promise((resolve, reject) => {
-      const tx = db.transaction(['entries'], 'readwrite');
+      const tx = db.transaction(['entries'],'readwrite');
       tx.objectStore('entries').put(entry).onsuccess = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
 
     const deleteEntryFromDB = date => new Promise((resolve, reject) => {
-      const tx = db.transaction(['entries'], 'readwrite');
+      const tx = db.transaction(['entries'],'readwrite');
       tx.objectStore('entries').delete(date).onsuccess = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
 
-    const saveStartWeight = weight => new Promise((resolve, reject) => {
-      const tx = db.transaction(['settings'], 'readwrite');
-      tx.objectStore('settings').put({ key:'startWeight', value:weight }).onsuccess = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
+    async function loadAll(){
+      const e = await getStoreAll('entries');
+      entries = e.sort((a,b)=> new Date(b.date) - new Date(a.date));
 
-    // Form submit
+      settings.startDate   = await getSetting('startDate');
+      settings.endDate     = await getSetting('endDate');
+      settings.startWeight = await getSetting('startWeight');
+      settings.targetWeight= await getSetting('targetWeight');
+
+      if (!settings.startDate || !settings.endDate || !settings.startWeight || !settings.targetWeight){
+        openSettings(true); // primo avvio → mostra setup
+      } else {
+        updateUI();
+        renderChart();
+      }
+    }
+
+    // ========== Form Inserimento ==========
     document.getElementById('weightForm').addEventListener('submit', async e => {
       e.preventDefault();
+      if (!settings.startWeight || !settings.targetWeight){
+        alert("Completa prima le impostazioni iniziali.");
+        openSettings(true);
+        return;
+      }
       const date = document.getElementById('date').value;
       const weight = parseFloat(document.getElementById('weight').value);
+      if (!date || !isFinite(weight)){ alert("Inserisci data e peso validi."); return; }
+
       const photoInput = document.getElementById('photo');
-
-      // Imposta startWeight se manca (ma NON sovrascrive se già presente)
-      if (startWeight === null) {
-        startWeight = isFinite(weight) ? weight : DEFAULT_START_WEIGHT;
-        await saveStartWeight(startWeight);
-      }
-
       const entry = { date, weight, photo:null };
 
       if (photoInput.files.length > 0) {
@@ -344,68 +424,69 @@
         reader.onload = async ev => {
           entry.photo = ev.target.result;
           await saveEntry(entry);
-          await loadData();
-          showSuccess(); resetForm();
+          await loadAll(); showSuccess(); resetForm();
         };
         reader.readAsDataURL(photoInput.files[0]);
       } else {
         await saveEntry(entry);
-        await loadData();
-        showSuccess(); resetForm();
+        await loadAll(); showSuccess(); resetForm();
       }
     });
 
     const showSuccess = () => {
-      const msg = document.getElementById('successMessage');
-      msg.style.display = 'block';
-      setTimeout(() => msg.style.display = 'none', 2200);
+      const m = document.getElementById('successMessage');
+      m.style.display='block'; setTimeout(()=> m.style.display='none', 2200);
     };
-
     const resetForm = () => {
-      document.getElementById('weight').value = '';
-      document.getElementById('photo').value = '';
-      document.getElementById('photoPreview').style.display = 'none';
-      // mantieni la data odierna
+      document.getElementById('weight').value='';
+      document.getElementById('photo').value='';
+      document.getElementById('photoPreview').style.display='none';
     };
 
-    const deleteEntry = async (date) => {
-      if (confirm('Vuoi eliminare questa entry?')) {
+    async function deleteEntry(date){
+      if (confirm('Vuoi eliminare questa entry?')){
         await deleteEntryFromDB(date);
-        await loadData();
+        await loadAll();
       }
-    };
+    }
 
-    const updateUI = () => {
+    // ========== UI ==========
+    function updateUI(){
+      // Titolo con obiettivo
+      document.getElementById('appTitle').textContent = `🎯 Obiettivo: ${settings.targetWeight} kg`;
+
+      // Citazione del giorno
+      setDailyQuote();
+
       // Giorni rimanenti
-      const today = new Date();
-      const diffDays = Math.ceil((TARGET_DATE - today) / (1000*60*60*24));
-      document.getElementById('daysLeft').textContent = diffDays > 0 ? diffDays : 0;
+      const end = new Date(settings.endDate);
+      const now = new Date();
+      const diffDays = Math.ceil((end - now) / (1000*60*60*24));
+      document.getElementById('daysLeft').textContent = diffDays>0 ? diffDays : 0;
 
-      // Progressi
+      // Progress bar e persi finora
       const bar = document.getElementById('progressBar');
-      if (entries.length > 0 && startWeight !== null) {
-        const currentWeight = entries[0].weight; // più recente
-        const weightLost = (startWeight - currentWeight);
-        const targetLoss = Math.max(startWeight - TARGET_WEIGHT, 0.0001);
-        const progress = Math.min((weightLost / targetLoss) * 100, 100);
-
-        document.getElementById('totalLost').textContent = weightLost.toFixed(1) + ' kg';
-        bar.style.width = progress.toFixed(1) + '%';
-        bar.textContent = progress.toFixed(0) + '%';
+      if (entries.length > 0){
+        const current = entries[0].weight;
+        const lost = (settings.startWeight - current);
+        const targetLoss = Math.max(settings.startWeight - settings.targetWeight, 0.0001);
+        const progress = Math.min((lost / targetLoss) * 100, 100);
+        document.getElementById('totalLost').textContent = `${lost.toFixed(1)} kg`;
+        bar.style.width = `${progress.toFixed(1)}%`;
+        bar.textContent = `${progress.toFixed(0)}%`;
       } else {
         document.getElementById('totalLost').textContent = '0 kg';
-        bar.style.width = '0%';
-        bar.textContent = '0%';
+        bar.style.width = '0%'; bar.textContent = '0%';
       }
 
-      // Media settimana (sull’ultima settimana di inserimenti, non calendario)
+      // Media settimana (sugli ultimi N inserimenti, max 7)
       const weeklyAvgEl = document.getElementById('weeklyAvg');
       if (entries.length >= 7) {
-        const lastWeek = entries.slice(0, 7);
-        const sum = lastWeek.reduce((acc,e)=> acc + e.weight, 0);
+        const last = entries.slice(0,7);
+        const sum = last.reduce((a,e)=>a+e.weight,0);
         weeklyAvgEl.textContent = (sum/7).toFixed(1) + ' kg';
-      } else if (entries.length > 0) {
-        const sum = entries.reduce((acc,e)=> acc + e.weight, 0);
+      } else if (entries.length > 0){
+        const sum = entries.reduce((a,e)=>a+e.weight,0);
         weeklyAvgEl.textContent = (sum/entries.length).toFixed(1) + ' kg';
       } else {
         weeklyAvgEl.textContent = '- kg';
@@ -413,13 +494,11 @@
 
       // Storico
       const historyDiv = document.getElementById('history');
-      if (entries.length === 0) {
+      if (entries.length === 0){
         historyDiv.innerHTML = '<p style="text-align:center;color:#888">Nessun dato ancora. Inizia a tracciare!</p>';
       } else {
-        historyDiv.innerHTML = entries.map(entry => {
-          const dateStr = new Date(entry.date).toLocaleDateString('it-IT',{
-            weekday:'short', day:'numeric', month:'short', year:'numeric'
-          });
+        historyDiv.innerHTML = entries.map(entry=>{
+          const dateStr = new Date(entry.date).toLocaleDateString('it-IT',{ weekday:'short', day:'numeric', month:'short', year:'numeric' });
           const imgEl = entry.photo
             ? `<img src="${entry.photo}" alt="Foto ${dateStr}" onclick="openModal('${entry.photo}')" />`
             : `<div class="placeholder" onclick="alert('Nessuna foto per questa data')">📷</div>`;
@@ -435,52 +514,137 @@
           `;
         }).join('');
       }
-    };
+    }
 
-    // === Backup / Ripristino / Export ===
-    const downloadBackup = () => {
-      const data = { version:1, exportDate:new Date().toISOString(), startWeight, entries };
+    function renderChart(){
+      const ctx = document.getElementById('weightChart').getContext('2d');
+      const asc = [...entries].sort((a,b)=> new Date(a.date) - new Date(b.date));
+      const labels = asc.map(e => new Date(e.date));
+      const weights = asc.map(e => e.weight);
+      const showLabels = labels.length ? labels : [new Date(settings.startDate || todayISO())];
+      const showWeights = weights.length ? weights : (settings.startWeight ? [settings.startWeight] : []);
+
+      if (chartRef){ chartRef.destroy(); }
+      chartRef = new Chart(ctx, {
+        type:'line',
+        data:{
+          labels: showLabels,
+          datasets:[{
+            label:'Peso (kg)',
+            data: showWeights,
+            tension:.3,
+            fill:false,
+            borderWidth:2,
+            pointRadius:3
+          }]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          scales:{
+            x:{ type:'time', time:{ unit:'day' }, ticks:{ autoSkip:true, maxTicksLimit:6 } },
+            y:{ beginAtZero:false, ticks:{ precision:1 } }
+          },
+          plugins:{ legend:{ display:false } }
+        }
+      });
+    }
+
+    // Citazione del giorno (deterministica per data)
+    function setDailyQuote(){
+      const qEl = document.getElementById('motivationQuote');
+      const d = new Date();
+      const dayKey = Math.floor(d.getTime() / (1000*60*60*24)); // giorni dal 1970
+      const idx = dayKey % QUOTES.length;
+      qEl.textContent = QUOTES[idx];
+    }
+
+    // Modale foto
+    function openModal(src){
+      document.getElementById('modalImage').src = src;
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+    function closeModal(){ document.getElementById('imageModal').style.display = 'none'; }
+
+    // Impostazioni / Setup
+    function openSettings(isFirst=false){
+      document.getElementById('setupOverlay').style.display='flex';
+      if (!isFirst){
+        // Precompila coi valori esistenti
+        if (settings.startDate)   document.getElementById('setupStartDate').value = settings.startDate;
+        if (settings.endDate)     document.getElementById('setupEndDate').value = settings.endDate;
+        if (settings.startWeight) document.getElementById('setupStartWeight').value = settings.startWeight;
+        if (settings.targetWeight)document.getElementById('setupTargetWeight').value = settings.targetWeight;
+      }
+    }
+    function closeSettings(){ document.getElementById('setupOverlay').style.display='none'; }
+
+    async function saveSettings(){
+      const startDate   = document.getElementById('setupStartDate').value;
+      const endDate     = document.getElementById('setupEndDate').value;
+      const startWeight = parseFloat(document.getElementById('setupStartWeight').value);
+      const targetWeight= parseFloat(document.getElementById('setupTargetWeight').value);
+      if (!startDate || !endDate || !isFinite(startWeight) || !isFinite(targetWeight)){
+        alert("Compila tutti i campi in modo valido."); return;
+      }
+      await setSetting('startDate', startDate);
+      await setSetting('endDate', endDate);
+      await setSetting('startWeight', startWeight);
+      await setSetting('targetWeight', targetWeight);
+
+      settings = { startDate, endDate, startWeight, targetWeight };
+      closeSettings();
+      updateUI(); renderChart();
+    }
+
+    async function resetSettings(){
+      if (!confirm("Questo reimposta le impostazioni iniziali (non elimina lo storico). Continuare?")) return;
+      await clearStore('settings');
+      settings = { startDate:null, endDate:null, startWeight:null, targetWeight:null };
+      openSettings(true);
+    }
+
+    // Backup / Restore / Export
+    function downloadBackup(){
+      const data = { version:1, exportDate:new Date().toISOString(), settings, entries };
       const blob = new Blob([JSON.stringify(data,null,2)], { type:'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = `weight-tracker-backup-${new Date().toISOString().slice(0,10)}.json`;
       a.click(); URL.revokeObjectURL(url);
       alert('✅ Backup scaricato! Salvalo in un posto sicuro.');
-    };
+    }
 
-    const restoreBackup = async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
+    async function restoreBackup(event){
+      const file = event.target.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = async e => {
         try{
           const data = JSON.parse(e.target.result);
-          if (!data.entries || !Array.isArray(data.entries)) {
-            alert('❌ File di backup non valido!'); return;
-          }
-          if (confirm(`Vuoi ripristinare ${data.entries.length} entries dal backup? I dati attuali verranno sovrascritti.`)){
-            const tx = db.transaction(['entries','settings'],'readwrite');
-            tx.objectStore('entries').clear();
-            tx.objectStore('settings').clear();
-
-            startWeight = data.startWeight ?? DEFAULT_START_WEIGHT;
-            await saveStartWeight(startWeight);
-
-            for (const entry of data.entries) { await saveEntry(entry); }
-            await loadData();
+          if (!data.entries || !Array.isArray(data.entries)) { alert('❌ File di backup non valido!'); return; }
+          if (confirm(`Ripristinare ${data.entries.length} entries e impostazioni? I dati attuali verranno sovrascritti.`)){
+            await clearStore('entries'); await clearStore('settings');
+            if (data.settings){
+              const { startDate, endDate, startWeight, targetWeight } = data.settings;
+              if (startDate)   await setSetting('startDate', startDate);
+              if (endDate)     await setSetting('endDate', endDate);
+              if (startWeight) await setSetting('startWeight', startWeight);
+              if (targetWeight)await setSetting('targetWeight', targetWeight);
+            }
+            for (const entry of data.entries){ await saveEntry(entry); }
+            await loadAll();
             alert('✅ Backup ripristinato con successo!');
           }
-        }catch(err){ alert('❌ Errore nel ripristino del backup: '+ err.message); }
+        } catch(err){ alert('❌ Errore nel ripristino: '+err.message); }
       };
       reader.readAsText(file);
-    };
+    }
 
-    const downloadExcel = () => {
+    function downloadExcel(){
       let csv = 'Data,Peso (kg),Differenza dal precedente\n';
       for (let i = entries.length - 1; i >= 0; i--){
-        const entry = entries[i];
-        const diff = i < entries.length - 1 ? (entry.weight - entries[i+1].weight).toFixed(1) : '0';
-        csv += `${entry.date},${entry.weight},${diff}\n`;
+        const e = entries[i];
+        const diff = i < entries.length - 1 ? (e.weight - entries[i+1].weight).toFixed(1) : '0';
+        csv += `${e.date},${e.weight},${diff}\n`;
       }
       const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -488,71 +652,18 @@
       a.href = url; a.download = `weight-tracker-${new Date().toISOString().slice(0,10)}.csv`;
       a.click(); URL.revokeObjectURL(url);
       alert('✅ File Excel scaricato!');
-    };
-
-    // === Grafico ===
-    function renderChart(){
-      const ctx = document.getElementById('weightChart').getContext('2d');
-      // Dati in ordine cronologico (ASC) per il grafico
-      const asc = [...entries].sort((a,b)=> new Date(a.date) - new Date(b.date));
-      const labels = asc.map(e => new Date(e.date));
-      const weights = asc.map(e => e.weight);
-
-      // Se non ci sono dati, mostra grafico vuoto con linea piatta allo startWeight (se disponibile)
-      const showWeights = weights.length ? weights : (startWeight !== null ? [startWeight] : []);
-
-      if (chartRef) { chartRef.destroy(); }
-      chartRef = new Chart(ctx, {
-        type:'line',
-        data:{
-          labels: labels.length ? labels : [new Date()],
-          datasets:[
-            {
-              label:'Peso (kg)',
-              data: showWeights,
-              tension:.3,
-              fill:false,
-              borderWidth:2,
-              pointRadius:3
-            }
-          ]
-        },
-        options:{
-          responsive:true,
-          maintainAspectRatio:false,
-          scales:{
-            x:{
-              type:'time',
-              time:{ unit:'day', tooltipFormat:'dd/MM/yyyy' },
-              ticks:{ autoSkip:true, maxTicksLimit:6 }
-            },
-            y:{ beginAtZero:false, ticks:{ precision:1 } }
-          },
-          plugins:{
-            legend:{ display:false },
-            tooltip:{ mode:'index', intersect:false }
-          }
-        }
-      });
     }
 
-    // === Photo modal ===
-    const openModal = src => {
-      document.getElementById('modalImage').src = src;
-      document.getElementById('imageModal').style.display = 'flex';
-    };
-    const closeModal = () => { document.getElementById('imageModal').style.display = 'none'; };
-
-    // === Service Worker registration ===
+    // Service Worker PWA
     if ('serviceWorker' in navigator){
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW registration failed:', err));
       });
     }
 
-    // === Bootstrap app ===
+    // Boot
     initDB()
-      .then(loadData)
+      .then(loadAll)
       .catch(err => {
         console.error('Errore inizializzazione DB:', err);
         alert("Errore nell'inizializzazione. Ricarica la pagina.");
